@@ -15,5 +15,6 @@ git clone https://github.com/agabor/DicomMatcher.git
 cd DicomMatcher
 mkdir build
 cd build
-cmake ..
+cmake -G Unix\ Makefiles ..
+make
 ```
