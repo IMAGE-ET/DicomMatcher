@@ -149,7 +149,7 @@ int ImagePair::homography() const {
     std::vector<Point2f> points1;
     std::vector<Point2f> points2;
 
-    for (int i = 0; i < matchedKeyPoints1.size(); i++) {
+    for (size_t i = 0; i < matchedKeyPoints1.size(); i++) {
         points1.push_back(matchedKeyPoints1[i].pt);
         points2.push_back(matchedKeyPoints2[i].pt);
     }
@@ -157,7 +157,7 @@ int ImagePair::homography() const {
     Mat H = findHomography(points1, points2, CV_RANSAC);
 
     int count = 0;
-    for (int i = 0; i < matchedKeyPoints1.size(); i++) {
+    for (size_t i = 0; i < matchedKeyPoints1.size(); i++) {
         if (H.data[i])
             ++count;
     }
