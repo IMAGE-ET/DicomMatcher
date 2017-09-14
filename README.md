@@ -1,4 +1,4 @@
-# DicomReader #
+# DicomMatcher #
 
 ## Install prerequisites ##
 
