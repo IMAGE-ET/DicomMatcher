@@ -56,7 +56,6 @@ void MainWindow::setFiles(const vector<shared_ptr<Image>> &images) {
     auto m = new QStringListModel();
     m->setStringList(fileNames);
     filesView->setModel(m);
-    filesView->setFixedWidth(200);
     currentImage = images[0];
     setImage(currentImage->original);
 }
@@ -64,9 +63,12 @@ void MainWindow::setFiles(const vector<shared_ptr<Image>> &images) {
 void MainWindow::initFilterButton() {
     QDockWidget *button_dock = new QDockWidget(this);
     button_dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+
     QPushButton *button = new QPushButton(QObject::tr("Filter"), button_dock);
     button_dock->setWidget(button);
+
     addDockWidget(BottomDockWidgetArea, button_dock);
+
     connect(button, &QPushButton::pressed, this, &MainWindow::runSURF);
 }
 
@@ -85,11 +87,14 @@ void MainWindow::initMatchesWidget() {
 QListView *MainWindow::createDockedListView(const QString &name, DockWidgetArea area) {
     auto *dockWidget = new QDockWidget(name, this);
     dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+
     auto *listView = new QListView(dockWidget);
     listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    listView->setFixedWidth(200);
+
     dockWidget->setWidget(listView);
     addDockWidget(area, dockWidget);
-    listView->setFixedWidth(200);
+
     return listView;
 }
 
@@ -106,13 +111,14 @@ void MainWindow::runSURF() {
     if (isRunning)
         return;
     isRunning = true;
+
     matches.clear();
     if (configWidget->changed) {
         runFeatureDetectionAndDescription();
     }
     runFeatureMatching();
-    isRunning = false;
 
+    isRunning = false;
 }
 
 void MainWindow::runFeatureMatching() {
@@ -168,13 +174,14 @@ ImagePair MainWindow::getImagePair(const shared_ptr<Image> &img) const {
 
 void MainWindow::runFeatureDetectionAndDescription() {
     configWidget->changed = false;
+
     ProgressDialog::start("Feature Detection & Description", static_cast<int>(images.size()));
-    qApp->processEvents();
 
     for (const auto &img : images) {
         img->scan(configWidget->settings);
         ProgressDialog::step();
     }
+
     ProgressDialog::end();
 }
 

@@ -47,6 +47,8 @@ private:
 
     void initConfigWidget();
 
+    QListView *createDockedListView(const QString &name, Qt::DockWidgetArea area);
+
     QLabel *imageLabel;
     QListView *filesView;
     QListView *filteredView;
@@ -56,8 +58,6 @@ private:
     std::vector<std::shared_ptr<Image>> images;
     std::shared_ptr<Image> currentImage;
     bool isRunning = false;
-
-    QListView *createDockedListView(const QString &name, Qt::DockWidgetArea area);
 };
 
 
