@@ -71,26 +71,31 @@ void MainWindow::initFilterButton() {
 }
 
 void MainWindow::initMatchesWidget() {
-    QDockWidget *right_dock = new QDockWidget(QObject::tr("Matches"), this);
-    right_dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    filteredView = new QListView(right_dock);
-    right_dock->setWidget(filteredView);
-    addDockWidget(RightDockWidgetArea, right_dock);
-    filesView->setFixedWidth(200);
+    filteredView = createDockedListView(QObject::tr("Matches"), RightDockWidgetArea);
+
     connect(filteredView, &QListView::activated,[=]( const QModelIndex &index ) {
         setImage(matches[index.row()].image_b->original);
     });
+
     connect(filteredView, &QListView::doubleClicked,[=]( const QModelIndex &index ) {
         cv::imshow("Matched Features", matches[index.row()].matchImage());
     });
 }
 
+QListView *MainWindow::createDockedListView(const QString &name, DockWidgetArea area) {
+    auto *dockWidget = new QDockWidget(name, this);
+    dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    auto *listView = new QListView(dockWidget);
+    listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    dockWidget->setWidget(listView);
+    addDockWidget(area, dockWidget);
+    listView->setFixedWidth(200);
+    return listView;
+}
+
 void MainWindow::initFilesWidget() {
-    QDockWidget *left_dock = new QDockWidget(QObject::tr("Files"), this);
-    left_dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    filesView = new QListView(left_dock);
-    left_dock->setWidget(filesView);
-    addDockWidget(LeftDockWidgetArea, left_dock);
+    filesView = createDockedListView(QObject::tr("Files"), LeftDockWidgetArea);
+
     connect(filesView, &QListView::activated,[=]( const QModelIndex &index ) {
         currentImage = images[index.row()];
         setImage(currentImage->original);
@@ -98,11 +103,15 @@ void MainWindow::initFilesWidget() {
 }
 
 void MainWindow::runSURF() {
+    if (isRunning)
+        return;
+    isRunning = true;
     matches.clear();
     if (configWidget->changed) {
         runFeatureDetectionAndDescription();
     }
     runFeatureMatching();
+    isRunning = false;
 
 }
 

@@ -55,6 +55,9 @@ private:
     std::vector<ImagePair> matches;
     std::vector<std::shared_ptr<Image>> images;
     std::shared_ptr<Image> currentImage;
+    bool isRunning = false;
+
+    QListView *createDockedListView(const QString &name, Qt::DockWidgetArea area);
 };
 
 
