@@ -112,23 +112,24 @@ void MainWindow::runSURF() {
         return;
     isRunning = true;
 
+    MatchSettings settings = configWidget->settings;
     matches.clear();
     if (configWidget->changed) {
-        runFeatureDetectionAndDescription();
+        runFeatureDetectionAndDescription(settings);
     }
-    runFeatureMatching();
+    runFeatureMatching(settings);
 
     isRunning = false;
 }
 
-void MainWindow::runFeatureMatching() {
+void MainWindow::runFeatureMatching(MatchSettings &settings) {
     ProgressDialog::start("Feature Matching", static_cast<int>(images.size() - 1));
 
     for (const auto &img : images) {
         if (img == currentImage)
             continue;
 
-        ImagePair imagePair = getImagePair(img);
+        ImagePair imagePair = getImagePair(img, settings);
 
         if (imagePair.matchCount() > 0) {
             matches.push_back(imagePair);
@@ -161,24 +162,24 @@ void MainWindow::setMatchLabels() const {
     filteredView->setModel(model);
 }
 
-ImagePair MainWindow::getImagePair(const shared_ptr<Image> &img) const {
-    ImagePair imagePair(configWidget->settings, currentImage, img);
+ImagePair MainWindow::getImagePair(const shared_ptr<Image> &img, MatchSettings &settings) const {
+    ImagePair imagePair(settings, currentImage, img);
 
-    if (configWidget->settings.mirrorY) {
-        ImagePair mirroredPair(configWidget->settings, currentImage, img->mirrored);
+    if (settings.mirrorY) {
+        ImagePair mirroredPair(settings, currentImage, img->mirrored);
         if (mirroredPair.matchCount() > imagePair.matchCount())
             return mirroredPair;
     }
     return imagePair;
 }
 
-void MainWindow::runFeatureDetectionAndDescription() {
+void MainWindow::runFeatureDetectionAndDescription(MatchSettings &settings) {
     configWidget->changed = false;
 
     ProgressDialog::start("Feature Detection & Description", static_cast<int>(images.size()));
 
     for (const auto &img : images) {
-        img->scan(configWidget->settings);
+        img->scan(settings);
         ProgressDialog::step();
     }
 

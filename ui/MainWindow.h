@@ -33,11 +33,11 @@ private:
 
     void initFilterButton();
 
-    void runFeatureDetectionAndDescription();
+    void runFeatureDetectionAndDescription(MatchSettings &settings);
 
-    void runFeatureMatching();
+    void runFeatureMatching(MatchSettings &settings);
 
-    ImagePair getImagePair(const std::shared_ptr<Image> &img) const;
+    ImagePair getImagePair(const std::shared_ptr<Image> &img, MatchSettings &settings) const;
 
     void setMatchLabels() const;
 
