@@ -25,27 +25,23 @@ std::tuple<T,T> getRange(const T* data, size_t size) {
 }
 
 template <typename IT, typename OT>
-OT* DicomReader::normalize(const IT* data) const {
-    auto *normd = new OT[size];
+void DicomReader::normalize(const IT* data, OT* normalized) const {
     auto maxval = (OT)-1;
     IT d = (IT)max - (IT)min;
     auto m =(double)maxval/(double)d;
     for( size_t i = 0; i < size; ++i){
         OT x = (data[i] - min) * m;
-        normd[i] = x;
+        normalized[i] = x;
     }
-    return normd;
 }
 
 
 template <typename IT, typename OT>
-OT* DicomReader::normalizeToFloat(const IT* data) const {
-    auto *normd = new OT[size];
+void DicomReader::normalizeToFloat(const IT* data, OT* normalized) const {
     auto d = (double)((IT)max - (IT)min);
     for( size_t i = 0; i < size; ++i){
-        normd[i] = (OT)((data[i] - min) / d);
+        normalized[i] = (OT)((data[i] - min) / d);
     }
-    return normd;
 }
 
 void DicomReader::config(DicomImage &img) {
@@ -159,27 +155,27 @@ int DicomReader::guessCVType() const {
 
 template<typename T>
 cv::Mat DicomReader::createMat(DicomImage &img, int cv_type) const {
-    void *data;
+    cv::Mat result(height, width, cv_type);
 
     auto *img_data = getOutputData<T>(img);
     switch (cv_type) {
         case CV_8U:
-            data = normalize<T, uint8_t>(img_data);
+            normalize<T, uint8_t>(img_data, reinterpret_cast<uint8_t *>(result.data));
             break;
         case CV_16U:
-            data = normalize<T, uint16_t>(img_data);
+            normalize<T, uint16_t>(img_data, reinterpret_cast<uint16_t *>(result.data));
             break;
         case CV_32F:
-            data = normalizeToFloat<T, float>(img_data);
+            normalizeToFloat<T, float>(img_data, reinterpret_cast<float *>(result.data));
             break;
         case CV_64F:
-            data = normalizeToFloat<T, double>(img_data);
+            normalizeToFloat<T, double>(img_data, reinterpret_cast<double *>(result.data));
             break;
         default:
             throw std::exception();
     }
 
-    return cv::Mat(height, width, cv_type, data);
+    return result;
 }
 
 template<typename T>

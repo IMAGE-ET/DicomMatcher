@@ -29,10 +29,10 @@ private:
     cv::Mat createMat(DicomImage &img, int cv_type) const;
 
     template <typename IT, typename OT>
-    OT* normalize(const IT* data) const;
+    void normalize(const IT* data, OT* normalized) const;
 
     template <typename IT, typename OT>
-    OT* normalizeToFloat(const IT* data) const;
+    void normalizeToFloat(const IT* data, OT* normalized) const;
 
     int guessCVType() const;
 
